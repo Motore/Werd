@@ -53,21 +53,43 @@ int score_match( const std::string& word1,const std::string& word2 )
 int main()
 {
 	std::vector<std::string> five_words;
+	std::vector<std::string> five_MC_words;
 	
 	{
-		std::ifstream five_word_file( "sgb-words.txt" );
-		for( std::string line; std::getline( five_word_file,line ); )
+		std::ifstream common_word_file("20k.txt");
+		for (std::string line; std::getline(common_word_file, line); )
 		{
-			if( line.empty() )
+			if (line.empty() || line.size() != 5)
 			{
 				continue;
 			}
-			five_words.push_back( line );
+			five_MC_words.push_back(line);
+		}
+	}
+	five_MC_words.resize(2000);
+	{
+		//int i = 0;
+		std::ifstream five_word_file("sgb-words.txt");
+		for (std::string line; std::getline(five_word_file, line);)
+		{
+			if (line.empty())
+			{
+				continue;
+			}
+			for (std::string& s : five_MC_words)
+			{
+				if (s.find(line) == std::string::npos)
+				{
+					continue;
+				}
+			}
+
+			five_words.push_back(line);
 		}
 	}
 
 	std::mt19937 rng( std::random_device{}() );
-	std::uniform_int_distribution<int> dist( 0,five_words.size() - 1 );
+	std::uniform_int_distribution<int> dist( 0,five_MC_words.size() - 1 );
 	const std::string target = five_words[dist( rng )];
 
 	while( true )
